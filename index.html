@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<style>
+
+text {
+  font: 24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+circle {
+  fill: #ccc;
+}
+
+.node:hover circle {
+  fill: orange;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var bleed = 100,
+    width = 960,
+    height = 760;
+
+var pack = d3.layout.pack()
+    .sort(null)
+    .size([width, height + bleed * 2])
+    .padding(2);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(0,0)");
+
+d3.json("frequencylisttop100.json", function(error, json) {
+  var node = svg.selectAll(".node")
+      .data(pack.nodes(flatten(json))
+        .filter(function(d) { console.log(!d.children);return !d.children; }))
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) { return "translate(" + d.x*0.8 + "," + d.y*0.8 + ")"; });
+
+  node.append("circle")
+      .attr("r", function(d) { return d.r*0.8; });
+
+  node.append("text")
+      .text(function(d) { return d.name; })
+      .style("font-size", function(d) { return Math.min(1.5 * d.r, (1.5 * d.r - 8) / this.getComputedTextLength() * 24) + "px"; })
+      .attr("dy", ".35em");
+});
+
+// Returns a flattened hierarchy containing all leaf nodes under the root.
+function flatten(root) {
+  var nodes = [];
+
+  nodes=root;
+  console.log(nodes[1]);
+  console.log(nodes);
+  console.log({children: nodes});
+  return {children: nodes};
+}
+
+d3.select(self.frameElement).style("height", height + "px");
+
+</script>
